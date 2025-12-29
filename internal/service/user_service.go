@@ -4,32 +4,32 @@ import (
 	"gin-user-management/internal/repository"
 )
 
-type UserService struct {
+type userService struct {
 	repo *repository.UserRepository
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
-	return &UserService{
+func NewUserService(repo *repository.UserRepository) UserService {
+	return &userService{
 		repo: repo,
 	}
 }
 
-func (us *UserService) GetAll() {
+func (us *userService) GetAll() {
 	us.repo.GetAll()
 }
 
-func (us *UserService) Create() {
+func (us *userService) Create() {
 	us.repo.Create()
 }
 
-func (us *UserService) GetByUUID() {
+func (us *userService) GetByUUID() {
 	us.repo.GetByUUID()
 }
 
-func (us *UserService) Update() {
+func (us *userService) Update() {
 	us.repo.Update()
 }
 
-func (us *UserService) Delete() {
+func (us *userService) Delete() {
 	us.repo.Delete()
 }
