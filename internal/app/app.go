@@ -3,6 +3,7 @@ package app
 import (
 	"gin-user-management/internal/config"
 	"gin-user-management/internal/route"
+	"gin-user-management/internal/validation"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,10 @@ type Application struct {
 
 func NewApplication(cfg *config.Config) *Application {
 	loadEnv()
+	if err := validation.InitValidator(); err != nil {
+		log.Fatalf("Init validator failed: %v", err)
+	}
+
 	r := gin.Default()
 
 	modules := []Module{
