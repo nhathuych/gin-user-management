@@ -1,36 +1,17 @@
 package repository
 
-import (
-	"gin-user-management/internal/model"
-	"log"
-)
+type SqlUserRepository struct{}
 
-type userRepository struct {
-	users []model.User
+func NewSqlUserRepository() UserRepository {
+	return &SqlUserRepository{}
 }
 
-func NewUserRepository() UserRepository {
-	return &userRepository{
-		users: make([]model.User, 0),
-	}
-}
+func (sur *SqlUserRepository) GetAll() {}
 
-func (ur *userRepository) GetAll() {
-	log.Println("GetAll called")
-}
+func (sur *SqlUserRepository) Create() {}
 
-func (ur *userRepository) Create() {
-	log.Println("Create called")
-}
+func (sur *SqlUserRepository) GetByUUID() {}
 
-func (ur *userRepository) GetByUUID() {
-	log.Println("GetByUUID called")
-}
+func (sur *SqlUserRepository) Update() {}
 
-func (ur *userRepository) Update() {
-	log.Println("Update called")
-}
-
-func (ur *userRepository) Delete() {
-	log.Println("Delete called")
-}
+func (sur *SqlUserRepository) Delete() {}

@@ -1,16 +1,16 @@
-package route
+package v1
 
 import (
-	"gin-user-management/internal/handler"
+	handlerV1 "gin-user-management/internal/handler/v1"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserRoute struct {
-	handler *handler.UserHandler
+	handler *handlerV1.UserHandler
 }
 
-func NewUserRoute(handler *handler.UserHandler) *UserRoute {
+func NewUserRoute(handler *handlerV1.UserHandler) *UserRoute {
 	return &UserRoute{
 		handler: handler,
 	}

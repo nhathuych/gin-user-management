@@ -13,17 +13,14 @@
 package middleware
 
 import (
+	"gin-user-management/internal/util"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ApiKeyMiddleware() gin.HandlerFunc {
-	expectedKey := os.Getenv("API_KEY")
-	if expectedKey == "" {
-		expectedKey = "your-api-key"
-	}
+	expectedKey := util.GetEnv("API_KEY", "your-api-key")
 
 	return func(ctx *gin.Context) {
 		apiKey := ctx.GetHeader("x-api-key")
@@ -40,8 +37,6 @@ func ApiKeyMiddleware() gin.HandlerFunc {
 			})
 			return
 		}
-
-		ctx.Set("username", "huy")
 
 		ctx.Next()
 	}

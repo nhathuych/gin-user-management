@@ -18,8 +18,8 @@ func RegisterRoutes(r *gin.Engine, routes ...Route) {
 		middleware.RateLimiterMiddleware(),
 	)
 
-	api := r.Group("/api/v1")
+	apiV1 := r.Group("/api/v1")
 	for _, route := range routes {
-		route.Register(api)
+		route.Register(apiV1)
 	}
 }

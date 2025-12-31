@@ -1,18 +1,16 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"gin-user-management/internal/util"
+)
 
 type Config struct {
 	ServerAddress string
 }
 
 func NewConfig() *Config {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
 	return &Config{
-		ServerAddress: ":" + port,
+		ServerAddress: fmt.Sprintf(":%s", util.GetEnv("PORT", "8080")),
 	}
 }

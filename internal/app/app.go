@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 type Module interface {
@@ -21,7 +20,6 @@ type Application struct {
 }
 
 func NewApplication(cfg *config.Config) *Application {
-	loadEnv()
 	if err := validation.InitValidator(); err != nil {
 		log.Fatalf("Init validator failed: %v", err)
 	}
@@ -53,11 +51,4 @@ func getModuleRoutes(modules []Module) []route.Route {
 	}
 
 	return routeList
-}
-
-func loadEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found.")
-	}
 }
