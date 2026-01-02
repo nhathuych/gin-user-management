@@ -1,9 +1,15 @@
 package repository
 
-type SqlUserRepository struct{}
+import "gin-user-management/internal/db/sqlc"
 
-func NewSqlUserRepository() UserRepository {
-	return &SqlUserRepository{}
+type SqlUserRepository struct {
+	db *sqlc.Queries
+}
+
+func NewSqlUserRepository(DB *sqlc.Queries) UserRepository {
+	return &SqlUserRepository{
+		db: DB,
+	}
 }
 
 func (sur *SqlUserRepository) GetAll() {}

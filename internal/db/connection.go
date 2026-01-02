@@ -4,10 +4,15 @@ import (
 	"context"
 	"fmt"
 	"gin-user-management/internal/config"
+	"gin-user-management/internal/db/sqlc"
 	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+var (
+	DB *sqlc.Queries
 )
 
 func InitDB() error {
@@ -30,6 +35,7 @@ func InitDB() error {
 	if err != nil {
 		return fmt.Errorf("Error create DB pool: %v", err)
 	}
+	DB = sqlc.New(DBPool)
 
 	if err := DBPool.Ping(ctx); err != nil {
 		return fmt.Errorf("DB ping error: %v", err)

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"gin-user-management/internal/db"
 	handlerV1 "gin-user-management/internal/handler/v1"
 	"gin-user-management/internal/repository"
 	"gin-user-management/internal/route"
@@ -13,7 +14,7 @@ type UserModule struct {
 }
 
 func NewUserModule() *UserModule {
-	userRepo := repository.NewSqlUserRepository()
+	userRepo := repository.NewSqlUserRepository(db.DB)
 	userService := serviceV1.NewUserService(userRepo)
 	userHandler := handlerV1.NewUserHandler(userService)
 	userRoute := routeV1.NewUserRoute(userHandler)
