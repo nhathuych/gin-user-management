@@ -2,6 +2,7 @@ package app
 
 import (
 	"gin-user-management/internal/config"
+	"gin-user-management/internal/db"
 	"gin-user-management/internal/route"
 	"gin-user-management/internal/validation"
 	"log"
@@ -20,6 +21,10 @@ type Application struct {
 }
 
 func NewApplication(cfg *config.Config) *Application {
+	if err := db.InitDB(); err != nil {
+		log.Fatalf("Failed to connect to db: %v", err)
+	}
+
 	if err := validation.InitValidator(); err != nil {
 		log.Fatalf("Init validator failed: %v", err)
 	}
