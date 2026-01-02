@@ -56,3 +56,18 @@ make migrate_goto VERSION=1
 # Drop all tables and schema from the database (USE WITH CAUTION)
 make migrate_drop
 ```
+
+## 🧩 SQL Code Generation (sqlc)
+
+This project uses sqlc to generate type-safe Go code from SQL queries, helping reduce boilerplate and prevent runtime SQL errors.
+
+Before running the application, make sure `sqlc` is installed:
+```bash
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+```
+
+To generate Go models and query functions from the SQL files, run:
+```bash
+sqlc generate
+```
+> This command reads the SQL definitions and configuration in sqlc.yaml and generates the corresponding Go code, keeping your database layer strongly typed and in sync with your schema.
