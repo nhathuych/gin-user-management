@@ -3,6 +3,7 @@ package app
 import (
 	"gin-user-management/internal/config"
 	"gin-user-management/internal/db"
+	"gin-user-management/internal/db/sqlc"
 	"gin-user-management/internal/route"
 	"gin-user-management/internal/validation"
 	"log"
@@ -20,6 +21,10 @@ type Application struct {
 	modules []Module // no need yet
 }
 
+type ModuleContext struct {
+	DB sqlc.Querier
+}
+
 func NewApplication(cfg *config.Config) *Application {
 	if err := db.InitDB(); err != nil {
 		log.Fatalf("Failed to connect to db: %v", err)
@@ -31,8 +36,12 @@ func NewApplication(cfg *config.Config) *Application {
 
 	r := gin.Default()
 
+	ctx := &ModuleContext{
+		DB: db.DB,
+	}
+
 	modules := []Module{
-		NewUserModule(),
+		NewUserModule(ctx),
 		// Add new module here
 	}
 

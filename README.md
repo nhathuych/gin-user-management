@@ -68,6 +68,10 @@ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 To generate Go models and query functions from the SQL files, run:
 ```bash
+# Option 1: Use make to generate the code:
+make sqlc
+
+# Option 2: Alternatively, run the command directly:
 sqlc generate
 ```
 > This command reads the SQL definitions and configuration in sqlc.yaml and generates the corresponding Go code, keeping your database layer strongly typed and in sync with your schema.

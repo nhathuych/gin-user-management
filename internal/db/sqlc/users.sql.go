@@ -7,43 +7,43 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(name, email) VALUES ($1, $2) RETURNING uuid, name, email, created_at
+INSERT INTO users(email, password, fullname, age, status, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, uuid, email, password, fullname, age, status, role, deleted_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Fullname string `json:"fullname"`
+	Age      *int32 `json:"age"`
+	Status   int32  `json:"status"`
+	Role     int32  `json:"role"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, createUser, arg.Name, arg.Email)
-	var i User
-	err := row.Scan(
-		&i.Uuid,
-		&i.Name,
-		&i.Email,
-		&i.CreatedAt,
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Email,
+		arg.Password,
+		arg.Fullname,
+		arg.Age,
+		arg.Status,
+		arg.Role,
 	)
-	return i, err
-}
-
-const getUser = `-- name: GetUser :one
-SELECT uuid, name, email, created_at FROM users WHERE uuid = $1
-`
-
-func (q *Queries) GetUser(ctx context.Context, argUuid uuid.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, getUser, argUuid)
 	var i User
 	err := row.Scan(
+		&i.ID,
 		&i.Uuid,
-		&i.Name,
 		&i.Email,
+		&i.Password,
+		&i.Fullname,
+		&i.Age,
+		&i.Status,
+		&i.Role,
+		&i.DeletedAt,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

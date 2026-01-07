@@ -1,10 +1,6 @@
 include .env
 export
 
-MIGRATION_DIR = internal/db/migrations
-DATABASE_URL = "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=$(POSTGRES_SSLMODE)"
-POSTGRES_DB_BACKUP = gin_user_management_development_backup.sql
-
 import_db:
 	docker exec -i postgres-db psql -U postgres -d $(POSTGRES_DB) < ./$(POSTGRES_DB_BACKUP)
 export_db:
@@ -23,7 +19,10 @@ migrate_drop:
 migrate_goto:
 	migrate -path $(MIGRATION_DIR) -database $(DATABASE_URL) goto $(VERSION)
 
+sqlc:
+	sqlc generate
+
 server:
 	air
 
-.PHONY: import_db export_db server create_migration migrate_up migrate_down migrate_force migrate_drop migrate_goto
+.PHONY: import_db export_db create_migration migrate_up migrate_down migrate_force migrate_drop migrate_goto sqlc server

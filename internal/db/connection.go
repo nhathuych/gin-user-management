@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	DB *sqlc.Queries
+	DB sqlc.Querier
 )
 
 func InitDB() error {
