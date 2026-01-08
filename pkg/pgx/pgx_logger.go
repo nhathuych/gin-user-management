@@ -3,6 +3,7 @@ package pgx
 import (
 	"context"
 	"fmt"
+	"gin-user-management/pkg/logger"
 	"reflect"
 	"regexp"
 	"strings"
@@ -99,6 +100,7 @@ func (t *PgxZerologTracer) Log(ctx context.Context, level tracelog.LogLevel, msg
 	}
 
 	baseLogger := t.Logger.With().
+		Str(string(logger.TraceIdKey), logger.GetTraceID(ctx)).
 		Dur("duration", duration).
 		Str("query_name", queryInfo.QueryName).
 		Str("sql", finalSQL).

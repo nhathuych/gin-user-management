@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"gin-user-management/pkg/logger"
 	"io"
 	"net/url"
 	"strings"
@@ -23,7 +24,7 @@ func (w *CustomResponseWriter) Write(data []byte) (n int, err error) {
 	return w.ResponseWriter.Write(data)
 }
 
-func LoggerMiddleware(logger *zerolog.Logger) gin.HandlerFunc {
+func LoggerMiddleware(zlog *zerolog.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		start := time.Now()
 		contentType := ctx.GetHeader("Content-Type")
@@ -61,7 +62,7 @@ func LoggerMiddleware(logger *zerolog.Logger) gin.HandlerFunc {
 		} else {
 			bodyBytes, err := io.ReadAll(ctx.Request.Body)
 			if err != nil {
-				logger.Error().Err(err).Msg("Failed to read request body")
+				zlog.Error().Err(err).Msg("Failed to read request body")
 			}
 
 			ctx.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
@@ -109,14 +110,15 @@ func LoggerMiddleware(logger *zerolog.Logger) gin.HandlerFunc {
 			responseBodyParsed = responseBodyRaw
 		}
 
-		logEvent := logger.Info()
+		logEvent := zlog.Info()
 		if statusCode >= 500 {
-			logEvent = logger.Error()
+			logEvent = zlog.Error()
 		} else if statusCode >= 400 {
-			logEvent = logger.Warn()
+			logEvent = zlog.Warn()
 		}
 
 		logEvent.
+			Str(string(logger.TraceIdKey), logger.GetTraceID(ctx.Request.Context())).
 			Str("method", ctx.Request.Method).
 			Str("path", ctx.Request.URL.Path).
 			Str("query", ctx.Request.URL.RawQuery).
