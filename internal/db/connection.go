@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"gin-user-management/internal/config"
 	"gin-user-management/internal/db/sqlc"
+	"gin-user-management/internal/util"
+	"gin-user-management/pkg/pgx"
 	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 )
 
 var (
@@ -22,6 +25,15 @@ func InitDB() error {
 		return fmt.Errorf("Error parsing DB config: %v", err)
 	}
 
+	sqlLogger := util.NewLogger("logs/sql.log", "info")
+
+	conf.ConnConfig.Tracer = &tracelog.TraceLog{
+		Logger: &pgx.PgxZerologTracer{
+			Logger:         *sqlLogger,
+			SlowQueryLimit: 500 * time.Millisecond,
+		},
+		LogLevel: tracelog.LogLevelDebug,
+	}
 	conf.MaxConns = 50
 	conf.MinConns = 5
 	conf.MaxConnLifetime = 30 * time.Minute
