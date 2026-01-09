@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"database/sql"
+	"errors"
 	"gin-user-management/internal/db/sqlc"
 	"gin-user-management/internal/repository"
 	"gin-user-management/internal/util"
@@ -46,8 +48,28 @@ func (us *userService) GetByUUID() {
 	us.repo.GetByUUID()
 }
 
-func (us *userService) Update() {
-	us.repo.Update()
+func (us *userService) Update(ctx *gin.Context, input sqlc.UpdateUserParams) (sqlc.User, error) {
+	context := ctx.Request.Context()
+
+	if input.Password != nil && *input.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return sqlc.User{}, util.WrapError(err, "Failed to hash password.", util.ErrCodeInternal)
+		}
+
+		strPassword := string(hashedPassword)
+		input.Password = &strPassword
+	}
+
+	user, err := us.repo.Update(context, input)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return sqlc.User{}, util.NewError("User not found.", util.ErrCodeNotFound)
+		}
+		return sqlc.User{}, util.WrapError(err, "Failed to update user.", util.ErrCodeInternal)
+	}
+
+	return user, nil
 }
 
 func (us *userService) Delete() {

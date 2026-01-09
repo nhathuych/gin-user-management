@@ -17,8 +17,8 @@ func NewSqlUserRepository(db sqlc.Querier) UserRepository {
 
 func (sur *SqlUserRepository) GetAll() {}
 
-func (sur *SqlUserRepository) Create(ctx context.Context, userParams sqlc.CreateUserParams) (sqlc.User, error) {
-	user, err := sur.db.CreateUser(ctx, userParams)
+func (sur *SqlUserRepository) Create(ctx context.Context, input sqlc.CreateUserParams) (sqlc.User, error) {
+	user, err := sur.db.CreateUser(ctx, input)
 	if err != nil {
 		return sqlc.User{}, err
 	}
@@ -28,6 +28,13 @@ func (sur *SqlUserRepository) Create(ctx context.Context, userParams sqlc.Create
 
 func (sur *SqlUserRepository) GetByUUID() {}
 
-func (sur *SqlUserRepository) Update() {}
+func (sur *SqlUserRepository) Update(ctx context.Context, input sqlc.UpdateUserParams) (sqlc.User, error) {
+	user, err := sur.db.UpdateUser(ctx, input)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
 
 func (sur *SqlUserRepository) Delete() {}

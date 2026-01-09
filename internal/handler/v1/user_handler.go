@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserHandler struct {
@@ -85,13 +86,28 @@ func (uh *UserHandler) Update(ctx *gin.Context) {
 		return
 	}
 
+	uuid, err := uuid.Parse(params.Uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
 	var input dtoV1.UpdateUserInput
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
 	}
 
-	util.ResponseSuccess(ctx, http.StatusOK, "")
+	user := input.MapUpdateInputToModel(uuid)
+
+	updatedUser, err := uh.service.Update(ctx, user)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	dto := dtoV1.MapUserToDTO(updatedUser)
+	util.ResponseSuccess(ctx, http.StatusOK, dto)
 }
 
 func (uh *UserHandler) Delete(ctx *gin.Context) {
