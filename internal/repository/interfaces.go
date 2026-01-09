@@ -7,8 +7,8 @@ import (
 
 type UserRepository interface {
 	GetAll()
-	Create(ctx context.Context, userParams sqlc.CreateUserParams) (sqlc.User, error)
+	Create(ctx context.Context, input sqlc.CreateUserParams) (sqlc.User, error)
 	GetByUUID()
-	Update()
+	Update(ctx context.Context, input sqlc.UpdateUserParams) (sqlc.User, error)
 	Delete()
 }

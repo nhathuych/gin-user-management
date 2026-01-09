@@ -7,6 +7,8 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -30,6 +32,55 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Age,
 		arg.Status,
 		arg.Role,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.Email,
+		&i.Password,
+		&i.Fullname,
+		&i.Age,
+		&i.Status,
+		&i.Role,
+		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET
+  password = COALESCE($1, password),
+  fullname = COALESCE($2, fullname),
+  age = COALESCE($3, age),
+  status = COALESCE($4, status),
+  role = COALESCE($5, role)
+WHERE
+  uuid = $6::uuid AND
+  deleted_at IS NULL
+RETURNING id, uuid, email, password, fullname, age, status, role, deleted_at, created_at, updated_at
+`
+
+type UpdateUserParams struct {
+	Password *string   `json:"password"`
+	Fullname *string   `json:"fullname"`
+	Age      *int32    `json:"age"`
+	Status   *int32    `json:"status"`
+	Role     *int32    `json:"role"`
+	Uuid     uuid.UUID `json:"uuid"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
+		arg.Password,
+		arg.Fullname,
+		arg.Age,
+		arg.Status,
+		arg.Role,
+		arg.Uuid,
 	)
 	var i User
 	err := row.Scan(

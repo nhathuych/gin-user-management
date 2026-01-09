@@ -8,8 +8,8 @@ import (
 
 type UserService interface {
 	GetAll()
-	Create(ctx *gin.Context, userParams sqlc.CreateUserParams) (sqlc.User, error)
+	Create(ctx *gin.Context, input sqlc.CreateUserParams) (sqlc.User, error)
 	GetByUUID()
-	Update()
+	Update(ctx *gin.Context, input sqlc.UpdateUserParams) (sqlc.User, error)
 	Delete()
 }
