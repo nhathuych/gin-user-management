@@ -77,6 +77,112 @@ func (q *Queries) HardDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, 
 	return i, err
 }
 
+const listUsersOrderByIdASC = `-- name: ListUsersOrderByIdASC :many
+SELECT id, uuid, email, password, fullname, age, status, role, deleted_at, created_at, updated_at
+FROM users
+WHERE
+  deleted_at IS NULL AND
+  (
+    $3::text IS NULL OR
+    $3::text = '' OR
+    email ILIKE '%' || $3 || '%' OR
+    fullname ILIKE '%' || $3 || '%'
+  )
+ORDER BY id ASC
+LIMIT $1 OFFSET $2
+`
+
+type ListUsersOrderByIdASCParams struct {
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
+}
+
+func (q *Queries) ListUsersOrderByIdASC(ctx context.Context, arg ListUsersOrderByIdASCParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersOrderByIdASC, arg.Limit, arg.Offset, arg.Search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Uuid,
+			&i.Email,
+			&i.Password,
+			&i.Fullname,
+			&i.Age,
+			&i.Status,
+			&i.Role,
+			&i.DeletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUsersOrderByIdDESC = `-- name: ListUsersOrderByIdDESC :many
+SELECT id, uuid, email, password, fullname, age, status, role, deleted_at, created_at, updated_at
+FROM users
+WHERE
+  deleted_at IS NULL AND
+  (
+    $3::text IS NULL OR
+    $3::text = '' OR
+    email ILIKE '%' || $3 || '%' OR
+    fullname ILIKE '%' || $3 || '%'
+  )
+ORDER BY id DESC
+LIMIT $1 OFFSET $2
+`
+
+type ListUsersOrderByIdDESCParams struct {
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
+}
+
+func (q *Queries) ListUsersOrderByIdDESC(ctx context.Context, arg ListUsersOrderByIdDESCParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersOrderByIdDESC, arg.Limit, arg.Offset, arg.Search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Uuid,
+			&i.Email,
+			&i.Password,
+			&i.Fullname,
+			&i.Age,
+			&i.Status,
+			&i.Role,
+			&i.DeletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const restoreUser = `-- name: RestoreUser :one
 UPDATE users
 SET

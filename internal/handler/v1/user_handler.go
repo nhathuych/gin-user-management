@@ -21,33 +21,23 @@ func NewUserHandler(service serviceV1.UserService) *UserHandler {
 	}
 }
 
-type GetUserByUuidParam struct {
-	Uuid string `uri:"uuid" binding:"uuid"`
-}
-
-type GetUsersParams struct {
-	Search string `form:"search" binding:"omitempty,min=3,max=50,search"`
-	Page   int    `form:"page" binding:"omitempty,gte=1,lte=100"`
-	Limit  int    `form:"limit" binding:"omitempty,gte=1,lte=100"`
-}
-
 // =========== ENDPOINTS ===========
 
 func (uh *UserHandler) GetAll(ctx *gin.Context) {
-	var params GetUsersParams
+	var params dtoV1.GetUsersParams
 	if err := ctx.ShouldBindQuery(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
 	}
 
-	if params.Page == 0 {
-		params.Page = 1
-	}
-	if params.Limit == 0 {
-		params.Limit = 10
+	users, err := uh.service.GetAll(ctx, params.Search, params.Order, params.Sort, params.Page, params.Limit)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
 	}
 
-	util.ResponseSuccess(ctx, http.StatusOK, "")
+	dtos := dtoV1.MapUsersToDTOs(users)
+	util.ResponseSuccess(ctx, http.StatusOK, "Users retrieved successfully.", dtos)
 }
 
 func (uh *UserHandler) Create(ctx *gin.Context) {
@@ -70,7 +60,7 @@ func (uh *UserHandler) Create(ctx *gin.Context) {
 }
 
 func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
-	var params GetUserByUuidParam
+	var params dtoV1.GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
@@ -80,7 +70,7 @@ func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
 }
 
 func (uh *UserHandler) Update(ctx *gin.Context) {
-	var params GetUserByUuidParam
+	var params dtoV1.GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
@@ -111,7 +101,7 @@ func (uh *UserHandler) Update(ctx *gin.Context) {
 }
 
 func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {
-	var params GetUserByUuidParam
+	var params dtoV1.GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
@@ -134,7 +124,7 @@ func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {
 }
 
 func (uh *UserHandler) RestoreUser(ctx *gin.Context) {
-	var params GetUserByUuidParam
+	var params dtoV1.GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
@@ -157,7 +147,7 @@ func (uh *UserHandler) RestoreUser(ctx *gin.Context) {
 }
 
 func (uh *UserHandler) HardDeleteUser(ctx *gin.Context) {
-	var params GetUserByUuidParam
+	var params dtoV1.GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return

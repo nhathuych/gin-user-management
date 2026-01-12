@@ -33,6 +33,18 @@ type UpdateUserInput struct {
 	Role     *int32  `json:"role" binding:"omitempty,oneof=1 2 3"`
 }
 
+type GetUserByUuidParam struct {
+	Uuid string `uri:"uuid" binding:"uuid"`
+}
+
+type GetUsersParams struct {
+	Search string `form:"search" binding:"omitempty,min=3,max=50,search"`
+	Page   int32  `form:"page" binding:"omitempty,gte=1"`
+	Limit  int32  `form:"limit" binding:"omitempty,gte=1,lte=1000"`
+	Order  string `form:"order_by" binding:"omitempty,oneof=id"`
+	Sort   string `form:"sort" binding:"omitempty,oneof=asc desc"`
+}
+
 func (input *CreateUserInput) MapCreateInputToModel() sqlc.CreateUserParams {
 	return sqlc.CreateUserParams{
 		Email:    input.Email,
@@ -71,6 +83,15 @@ func MapUserToDTO(user sqlc.User) *UserDTO {
 	}
 
 	return dto
+}
+
+func MapUsersToDTOs(users []sqlc.User) []UserDTO {
+	dtos := make([]UserDTO, 0, len(users))
+	for _, user := range users {
+		dtos = append(dtos, *MapUserToDTO(user))
+	}
+
+	return dtos
 }
 
 func mapStatusText(status int32) string {

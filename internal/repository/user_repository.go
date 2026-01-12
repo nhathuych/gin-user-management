@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"gin-user-management/internal/db/sqlc"
 
 	"github.com/google/uuid"
@@ -17,7 +18,32 @@ func NewSqlUserRepository(db sqlc.Querier) UserRepository {
 	}
 }
 
-func (sur *SqlUserRepository) GetAll() {}
+func (sur *SqlUserRepository) GetAll(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error) {
+	var (
+		users []sqlc.User
+		err   error
+	)
+
+	switch orderBy {
+	case "id":
+		switch sort {
+		case "asc":
+			users, err = sur.db.ListUsersOrderByIdASC(ctx, sqlc.ListUsersOrderByIdASCParams{
+				Limit: limit, Offset: offset, Search: search,
+			})
+		case "desc":
+			users, err = sur.db.ListUsersOrderByIdDESC(ctx, sqlc.ListUsersOrderByIdDESCParams{
+				Limit: limit, Offset: offset, Search: search,
+			})
+		default:
+			return users, fmt.Errorf("invalid sort: %s", sort)
+		}
+	default:
+		return users, fmt.Errorf("invalid orderBy: %s", orderBy)
+	}
+
+	return users, err
+}
 
 func (sur *SqlUserRepository) Create(ctx context.Context, input sqlc.CreateUserParams) (sqlc.User, error) {
 	user, err := sur.db.CreateUser(ctx, input)

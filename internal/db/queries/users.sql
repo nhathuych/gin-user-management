@@ -38,3 +38,31 @@ WHERE
   uuid = sqlc.arg(uuid)::uuid AND
   deleted_at IS NOT NULL
 RETURNING *;
+
+-- name: ListUsersOrderByIdASC :many
+SELECT *
+FROM users
+WHERE
+  deleted_at IS NULL AND
+  (
+    sqlc.narg(search)::text IS NULL OR
+    sqlc.narg(search)::text = '' OR
+    email ILIKE '%' || sqlc.narg(search) || '%' OR
+    fullname ILIKE '%' || sqlc.narg(search) || '%'
+  )
+ORDER BY id ASC
+LIMIT $1 OFFSET $2;
+
+-- name: ListUsersOrderByIdDESC :many
+SELECT *
+FROM users
+WHERE
+  deleted_at IS NULL AND
+  (
+    sqlc.narg(search)::text IS NULL OR
+    sqlc.narg(search)::text = '' OR
+    email ILIKE '%' || sqlc.narg(search) || '%' OR
+    fullname ILIKE '%' || sqlc.narg(search) || '%'
+  )
+ORDER BY id DESC
+LIMIT $1 OFFSET $2;
