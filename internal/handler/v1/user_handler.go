@@ -66,7 +66,7 @@ func (uh *UserHandler) Create(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(createdUser)
-	util.ResponseSuccess(ctx, http.StatusCreated, dto)
+	util.ResponseSuccess(ctx, http.StatusCreated, "User created successfully.", dto)
 }
 
 func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
@@ -107,13 +107,71 @@ func (uh *UserHandler) Update(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(updatedUser)
-	util.ResponseSuccess(ctx, http.StatusOK, dto)
+	util.ResponseSuccess(ctx, http.StatusOK, "User updated successfullt.", dto)
 }
 
-func (uh *UserHandler) Delete(ctx *gin.Context) {
+func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {
 	var params GetUserByUuidParam
 	if err := ctx.ShouldBindUri(&params); err != nil {
 		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+
+	uuid, err := uuid.Parse(params.Uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	deletedUser, err := uh.service.SoftDeleteUser(ctx, uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	dto := dtoV1.MapUserToDTO(deletedUser)
+	util.ResponseSuccess(ctx, http.StatusOK, "User deleted successfully.", dto)
+}
+
+func (uh *UserHandler) RestoreUser(ctx *gin.Context) {
+	var params GetUserByUuidParam
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+
+	uuid, err := uuid.Parse(params.Uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	restoredUser, err := uh.service.RestoreUser(ctx, uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	dto := dtoV1.MapUserToDTO(restoredUser)
+	util.ResponseSuccess(ctx, http.StatusOK, "User restored successfully.", dto)
+}
+
+func (uh *UserHandler) HardDeleteUser(ctx *gin.Context) {
+	var params GetUserByUuidParam
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+
+	uuid, err := uuid.Parse(params.Uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	err = uh.service.HardDeleteUser(ctx, uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
 		return
 	}
 

@@ -8,6 +8,7 @@ import (
 	"gin-user-management/internal/util"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -72,6 +73,44 @@ func (us *userService) Update(ctx *gin.Context, input sqlc.UpdateUserParams) (sq
 	return user, nil
 }
 
-func (us *userService) Delete() {
-	us.repo.Delete()
+func (us *userService) SoftDeleteUser(ctx *gin.Context, uuid uuid.UUID) (sqlc.User, error) {
+	context := ctx.Request.Context()
+
+	user, err := us.repo.SoftDeleteUser(context, uuid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return sqlc.User{}, util.NewError("User not found.", util.ErrCodeNotFound)
+		}
+		return sqlc.User{}, util.WrapError(err, "Failed to delete user.", util.ErrCodeInternal)
+	}
+
+	return user, nil
+}
+
+func (us *userService) RestoreUser(ctx *gin.Context, uuid uuid.UUID) (sqlc.User, error) {
+	context := ctx.Request.Context()
+
+	user, err := us.repo.RestoreUser(context, uuid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return sqlc.User{}, util.NewError("User not found or not deleted yet.", util.ErrCodeNotFound)
+		}
+		return sqlc.User{}, util.WrapError(err, "Failed to restore user.", util.ErrCodeInternal)
+	}
+
+	return user, nil
+}
+
+func (us *userService) HardDeleteUser(ctx *gin.Context, uuid uuid.UUID) error {
+	context := ctx.Request.Context()
+
+	_, err := us.repo.HardDeleteUser(context, uuid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return util.NewError("User not found or not eligible for hard delete.", util.ErrCodeNotFound)
+		}
+		return util.WrapError(err, "Failed to delete user.", util.ErrCodeInternal)
+	}
+
+	return nil
 }

@@ -13,3 +13,28 @@ WHERE
   uuid = sqlc.arg(uuid)::uuid AND
   deleted_at IS NULL
 RETURNING *;
+
+-- name: SoftDeleteUser :one
+UPDATE users
+SET
+  deleted_at = NOW()
+WHERE
+  uuid = sqlc.arg(uuid)::uuid AND
+  deleted_at IS NULL
+RETURNING *;
+
+-- name: RestoreUser :one
+UPDATE users
+SET
+  deleted_at = NULL
+WHERE
+  uuid = sqlc.arg(uuid)::uuid AND
+  deleted_at IS NOT NULL
+RETURNING *;
+
+-- name: HardDeleteUser :one
+DELETE FROM users
+WHERE
+  uuid = sqlc.arg(uuid)::uuid AND
+  deleted_at IS NOT NULL
+RETURNING *;

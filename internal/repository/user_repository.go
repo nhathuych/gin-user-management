@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"gin-user-management/internal/db/sqlc"
+
+	"github.com/google/uuid"
 )
 
 type SqlUserRepository struct {
@@ -37,4 +39,29 @@ func (sur *SqlUserRepository) Update(ctx context.Context, input sqlc.UpdateUserP
 	return user, nil
 }
 
-func (sur *SqlUserRepository) Delete() {}
+func (sur *SqlUserRepository) SoftDeleteUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error) {
+	user, err := sur.db.SoftDeleteUser(ctx, uuid)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
+
+func (sur *SqlUserRepository) RestoreUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error) {
+	user, err := sur.db.RestoreUser(ctx, uuid)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
+
+func (sur *SqlUserRepository) HardDeleteUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error) {
+	user, err := sur.db.HardDeleteUser(ctx, uuid)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
