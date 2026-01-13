@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	DB sqlc.Querier
+	DB     sqlc.Querier
+	DBPool *pgxpool.Pool
 )
 
 func InitDB() error {
@@ -43,7 +44,7 @@ func InitDB() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	DBPool, err := pgxpool.NewWithConfig(ctx, conf)
+	DBPool, err = pgxpool.NewWithConfig(ctx, conf)
 	if err != nil {
 		return fmt.Errorf("Error create DB pool: %v", err)
 	}

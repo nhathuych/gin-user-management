@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"gin-user-management/internal/db"
 	"gin-user-management/internal/db/sqlc"
 
 	"github.com/google/uuid"
@@ -51,6 +52,65 @@ func (sur *SqlUserRepository) GetAll(ctx context.Context, search, orderBy, sort 
 	}
 
 	return users, err
+}
+
+func (sur *SqlUserRepository) GetAllV2(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error) {
+	query := `
+		SELECT *
+		FROM users
+		WHERE
+			deleted_at IS NULL AND
+			(
+				$1::text IS NULL OR
+				$1::text = '' OR
+				email    ILIKE '%' || $1 || '%' OR
+				fullname ILIKE '%' || $1 || '%'
+			)
+	`
+
+	order := "ASC"
+	if sort == "desc" {
+		order = "DESC"
+	}
+
+	if orderBy == "id" {
+		query += fmt.Sprintf(" ORDER BY %s %s", orderBy, order)
+	} else {
+		query += " ORDER BY id ASC"
+	}
+
+	query += " LIMIT $2 OFFSET $3"
+
+	rows, err := db.DBPool.Query(ctx, query, search, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	users := []sqlc.User{}
+	for rows.Next() {
+		var i sqlc.User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Uuid,
+			&i.Email,
+			&i.Password,
+			&i.Fullname,
+			&i.Age,
+			&i.Status,
+			&i.Role,
+			&i.DeletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (sur *SqlUserRepository) Create(ctx context.Context, input sqlc.CreateUserParams) (sqlc.User, error) {
