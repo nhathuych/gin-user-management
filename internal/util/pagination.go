@@ -9,11 +9,6 @@ type Pagination struct {
 	HasPrev      bool  `json:"has_prev"`
 }
 
-type PaginationResponse[T any] struct {
-	Data       T           `json:"data"`
-	Pagination *Pagination `json:"pagination"`
-}
-
 func NewPagination(page, limit, totalRecords int32) *Pagination {
 	if page <= 0 {
 		page = 1
@@ -50,12 +45,5 @@ func NewPagination(page, limit, totalRecords int32) *Pagination {
 		TotalPages:   totalPages,
 		HasNext:      page < totalPages,
 		HasPrev:      page > 1,
-	}
-}
-
-func NewPaginationResponse[T any](data T, page, limit, totalRecords int32) PaginationResponse[T] {
-	return PaginationResponse[T]{
-		Data:       data,
-		Pagination: NewPagination(page, limit, totalRecords),
 	}
 }

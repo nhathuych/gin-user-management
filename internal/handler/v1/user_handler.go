@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"gin-user-management/internal/db/sqlc"
 	dtoV1 "gin-user-management/internal/dto/v1"
 	serviceV1 "gin-user-management/internal/service/v1"
 	"gin-user-management/internal/util"
@@ -37,8 +38,8 @@ func (uh *UserHandler) GetAll(ctx *gin.Context) {
 	}
 
 	dtos := dtoV1.MapUsersToDTOs(users)
-	paginatedUsers := util.NewPaginationResponse(dtos, params.Page, params.Limit, total)
-	util.ResponseSuccess(ctx, http.StatusOK, "Users retrieved successfully.", paginatedUsers)
+	pagination := util.NewPagination(params.Page, params.Limit, total)
+	util.ResponseSuccess(ctx, http.StatusOK, "Users retrieved successfully.", dtos, pagination)
 }
 
 func (uh *UserHandler) Create(ctx *gin.Context) {
@@ -57,7 +58,7 @@ func (uh *UserHandler) Create(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(createdUser)
-	util.ResponseSuccess(ctx, http.StatusCreated, "User created successfully.", dto)
+	util.ResponseSuccess(ctx, http.StatusCreated, "User created successfully.", dto, nil)
 }
 
 func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
@@ -67,7 +68,7 @@ func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
 		return
 	}
 
-	util.ResponseSuccess(ctx, http.StatusOK, "")
+	util.ResponseSuccess(ctx, http.StatusOK, "", sqlc.User{}, nil)
 }
 
 func (uh *UserHandler) Update(ctx *gin.Context) {
@@ -98,7 +99,7 @@ func (uh *UserHandler) Update(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(updatedUser)
-	util.ResponseSuccess(ctx, http.StatusOK, "User updated successfullt.", dto)
+	util.ResponseSuccess(ctx, http.StatusOK, "User updated successfullt.", dto, nil)
 }
 
 func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {
@@ -121,7 +122,7 @@ func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(deletedUser)
-	util.ResponseSuccess(ctx, http.StatusOK, "User deleted successfully.", dto)
+	util.ResponseSuccess(ctx, http.StatusOK, "User deleted successfully.", dto, nil)
 }
 
 func (uh *UserHandler) RestoreUser(ctx *gin.Context) {
@@ -144,7 +145,7 @@ func (uh *UserHandler) RestoreUser(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(restoredUser)
-	util.ResponseSuccess(ctx, http.StatusOK, "User restored successfully.", dto)
+	util.ResponseSuccess(ctx, http.StatusOK, "User restored successfully.", dto, nil)
 }
 
 func (uh *UserHandler) HardDeleteUser(ctx *gin.Context) {
