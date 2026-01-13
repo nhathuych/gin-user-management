@@ -8,7 +8,7 @@ import (
 )
 
 type UserService interface {
-	GetAll(ctx *gin.Context, search, orderBy, sort string, page, limit int32) ([]sqlc.User, error)
+	GetAll(ctx *gin.Context, search, orderBy, sort string, page, limit int32) ([]sqlc.User, int32, error)
 	Create(ctx *gin.Context, input sqlc.CreateUserParams) (sqlc.User, error)
 	GetByUUID()
 	Update(ctx *gin.Context, input sqlc.UpdateUserParams) (sqlc.User, error)

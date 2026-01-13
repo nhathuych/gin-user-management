@@ -30,14 +30,15 @@ func (uh *UserHandler) GetAll(ctx *gin.Context) {
 		return
 	}
 
-	users, err := uh.service.GetAll(ctx, params.Search, params.Order, params.Sort, params.Page, params.Limit)
+	users, total, err := uh.service.GetAll(ctx, params.Search, params.Order, params.Sort, params.Page, params.Limit)
 	if err != nil {
 		util.ResponseError(ctx, err)
 		return
 	}
 
 	dtos := dtoV1.MapUsersToDTOs(users)
-	util.ResponseSuccess(ctx, http.StatusOK, "Users retrieved successfully.", dtos)
+	paginatedUsers := util.NewPaginationResponse(dtos, params.Page, params.Limit, total)
+	util.ResponseSuccess(ctx, http.StatusOK, "Users retrieved successfully.", paginatedUsers)
 }
 
 func (uh *UserHandler) Create(ctx *gin.Context) {

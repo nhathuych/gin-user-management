@@ -18,6 +18,14 @@ func NewSqlUserRepository(db sqlc.Querier) UserRepository {
 	}
 }
 
+func (sur *SqlUserRepository) CountUsers(ctx context.Context, search string) (int64, error) {
+	total, err := sur.db.CountUsers(ctx, search)
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
 func (sur *SqlUserRepository) GetAll(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error) {
 	var (
 		users []sqlc.User
