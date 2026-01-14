@@ -13,6 +13,7 @@ import (
 type Querier interface {
 	CountUsers(ctx context.Context, search string) (int64, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetUser(ctx context.Context, argUuid uuid.UUID) (User, error)
 	HardDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, error)
 	ListUsersOrderByIdASC(ctx context.Context, arg ListUsersOrderByIdASCParams) ([]User, error)
 	ListUsersOrderByIdDESC(ctx context.Context, arg ListUsersOrderByIdDESCParams) ([]User, error)

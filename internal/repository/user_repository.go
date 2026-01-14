@@ -122,7 +122,14 @@ func (sur *SqlUserRepository) Create(ctx context.Context, input sqlc.CreateUserP
 	return user, nil
 }
 
-func (sur *SqlUserRepository) GetByUUID() {}
+func (sur *SqlUserRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (sqlc.User, error) {
+	user, err := sur.db.GetUser(ctx, uuid)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
 
 func (sur *SqlUserRepository) Update(ctx context.Context, input sqlc.UpdateUserParams) (sqlc.User, error) {
 	user, err := sur.db.UpdateUser(ctx, input)

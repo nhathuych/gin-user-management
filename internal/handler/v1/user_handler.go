@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"gin-user-management/internal/db/sqlc"
 	dtoV1 "gin-user-management/internal/dto/v1"
 	serviceV1 "gin-user-management/internal/service/v1"
 	"gin-user-management/internal/util"
@@ -68,7 +67,20 @@ func (uh *UserHandler) GetByUUID(ctx *gin.Context) {
 		return
 	}
 
-	util.ResponseSuccess(ctx, http.StatusOK, "", sqlc.User{}, nil)
+	uuid, err := uuid.Parse(params.Uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	user, err := uh.service.GetByUUID(ctx, uuid)
+	if err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	dto := dtoV1.MapUserToDTO(user)
+	util.ResponseSuccess(ctx, http.StatusOK, "User retrieved successfully.", dto, nil)
 }
 
 func (uh *UserHandler) Update(ctx *gin.Context) {
@@ -99,7 +111,7 @@ func (uh *UserHandler) Update(ctx *gin.Context) {
 	}
 
 	dto := dtoV1.MapUserToDTO(updatedUser)
-	util.ResponseSuccess(ctx, http.StatusOK, "User updated successfullt.", dto, nil)
+	util.ResponseSuccess(ctx, http.StatusOK, "User updated successfully.", dto, nil)
 }
 
 func (uh *UserHandler) SoftDeleteUser(ctx *gin.Context) {

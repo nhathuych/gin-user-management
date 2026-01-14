@@ -12,7 +12,7 @@ type UserRepository interface {
 	GetAll(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error)
 	GetAllV2(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error)
 	Create(ctx context.Context, input sqlc.CreateUserParams) (sqlc.User, error)
-	GetByUUID()
+	GetByUUID(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
 	Update(ctx context.Context, input sqlc.UpdateUserParams) (sqlc.User, error)
 	SoftDeleteUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
 	RestoreUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
