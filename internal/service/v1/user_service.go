@@ -22,7 +22,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	}
 }
 
-func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, page, limit int32) ([]sqlc.User, int32, error) {
+func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, page, limit int32, deleted bool) ([]sqlc.User, int32, error) {
 	context := ctx.Request.Context()
 
 	if sort == "" {
@@ -40,7 +40,7 @@ func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, pa
 
 	offset := (page - 1) * limit
 
-	users, err := us.repo.GetAllV2(context, search, orderBy, sort, limit, offset)
+	users, err := us.repo.GetAllV2(context, search, orderBy, sort, limit, offset, deleted)
 	if err != nil {
 		return []sqlc.User{}, 0, util.WrapError(err, "Failed to retrieve users.", util.ErrCodeInternal)
 	}

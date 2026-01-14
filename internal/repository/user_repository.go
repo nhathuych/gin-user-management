@@ -54,12 +54,11 @@ func (sur *SqlUserRepository) GetAll(ctx context.Context, search, orderBy, sort 
 	return users, err
 }
 
-func (sur *SqlUserRepository) GetAllV2(ctx context.Context, search, orderBy, sort string, limit, offset int32) ([]sqlc.User, error) {
+func (sur *SqlUserRepository) GetAllV2(ctx context.Context, search, orderBy, sort string, limit, offset int32, deleted bool) ([]sqlc.User, error) {
 	query := `
 		SELECT *
 		FROM users
 		WHERE
-			deleted_at IS NULL AND
 			(
 				$1::text IS NULL OR
 				$1::text = '' OR
@@ -67,6 +66,12 @@ func (sur *SqlUserRepository) GetAllV2(ctx context.Context, search, orderBy, sor
 				fullname ILIKE '%' || $1 || '%'
 			)
 	`
+
+	if deleted {
+		query += " AND deleted_at IS NOT NULL"
+	} else {
+		query += " AND deleted_at IS NULL"
+	}
 
 	order := "ASC"
 	if sort == "desc" {
