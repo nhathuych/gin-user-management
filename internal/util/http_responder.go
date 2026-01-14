@@ -6,6 +6,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ErrorDetail struct {
+	Code    ErrorCode `json:"code"`
+	Message string    `json:"message"`
+	Detail  string    `json:"detail,omitempty"`
+}
+
+type ErrorResponse struct {
+	Status string      `json:"status"`
+	Error  ErrorDetail `json:"error"`
+}
+
+type APIResponse[T any] struct {
+	Status     string      `json:"status"`
+	Message    string      `json:"message,omitempty"`
+	Data       T           `json:"data,omitempty"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+}
+
 func ResponseSuccess[T any](ctx *gin.Context, status int, message string, data T, pagination *Pagination) {
 	ctx.JSON(status, APIResponse[T]{
 		Status:     "success",
@@ -17,16 +35,31 @@ func ResponseSuccess[T any](ctx *gin.Context, status int, message string, data T
 
 func ResponseError(ctx *gin.Context, err error) {
 	if appErr, ok := err.(*AppError); ok {
-		ctx.JSON(httpStatusFromCode(appErr.Code), gin.H{
-			"code":  appErr.Code,
-			"error": appErr.Message,
-		})
+		status := httpStatusFromCode(appErr.Code)
+
+		res := ErrorResponse{
+			Status: "error",
+			Error: ErrorDetail{
+				Code:    appErr.Code,
+				Message: appErr.Message,
+			},
+		}
+
+		if appErr.Err != nil {
+			res.Error.Detail = appErr.Err.Error()
+		}
+
+		ctx.JSON(status, res)
 		return
 	}
 
-	ctx.JSON(http.StatusInternalServerError, gin.H{
-		"code":  ErrCodeInternal,
-		"error": err.Error(),
+	ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+		Status: "error",
+		Error: ErrorDetail{
+			Code:    ErrCodeInternal,
+			Message: "Internal server error",
+			Detail:  err.Error(),
+		},
 	})
 }
 
