@@ -19,8 +19,11 @@ func NewSqlUserRepository(db sqlc.Querier) UserRepository {
 	}
 }
 
-func (sur *SqlUserRepository) CountUsers(ctx context.Context, search string) (int64, error) {
-	total, err := sur.db.CountUsers(ctx, search)
+func (sur *SqlUserRepository) CountUsers(ctx context.Context, search string, deleted bool) (int64, error) {
+	total, err := sur.db.CountUsers(ctx, sqlc.CountUsersParams{
+		Search:  search,
+		Deleted: &deleted,
+	})
 	if err != nil {
 		return 0, err
 	}

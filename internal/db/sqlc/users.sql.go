@@ -15,17 +15,26 @@ const countUsers = `-- name: CountUsers :one
 SELECT COUNT(*)
 FROM users
 WHERE
-  deleted_at IS NULL AND
   (
-    $1::text IS NULL OR
-    $1::text = '' OR
-    email ILIKE '%' || $1 || '%' OR
-    fullname ILIKE '%' || $1 || '%'
+    $1::bool IS NULL OR
+    ($1::bool = TRUE AND deleted_at IS NOT NULL) OR
+    ($1::bool = FALSE AND deleted_at IS NULL)
+  ) AND
+  (
+    $2::text IS NULL OR
+    $2::text = '' OR
+    email ILIKE '%' || $2 || '%' OR
+    fullname ILIKE '%' || $2 || '%'
   )
 `
 
-func (q *Queries) CountUsers(ctx context.Context, search string) (int64, error) {
-	row := q.db.QueryRow(ctx, countUsers, search)
+type CountUsersParams struct {
+	Deleted *bool  `json:"deleted"`
+	Search  string `json:"search"`
+}
+
+func (q *Queries) CountUsers(ctx context.Context, arg CountUsersParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsers, arg.Deleted, arg.Search)
 	var count int64
 	err := row.Scan(&count)
 	return count, err

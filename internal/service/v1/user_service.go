@@ -45,7 +45,7 @@ func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, pa
 		return []sqlc.User{}, 0, util.WrapError(err, "Failed to retrieve users.", util.ErrCodeInternal)
 	}
 
-	total, err := us.repo.CountUsers(context, search)
+	total, err := us.repo.CountUsers(context, search, deleted)
 	if err != nil {
 		return []sqlc.User{}, 0, util.WrapError(err, "Failed to count users.", util.ErrCodeInternal)
 	}

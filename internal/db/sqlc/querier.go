@@ -11,7 +11,7 @@ import (
 )
 
 type Querier interface {
-	CountUsers(ctx context.Context, search string) (int64, error)
+	CountUsers(ctx context.Context, arg CountUsersParams) (int64, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetUser(ctx context.Context, argUuid uuid.UUID) (User, error)
 	HardDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, error)

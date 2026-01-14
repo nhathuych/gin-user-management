@@ -46,7 +46,11 @@ RETURNING *;
 SELECT COUNT(*)
 FROM users
 WHERE
-  deleted_at IS NULL AND
+  (
+    sqlc.narg(deleted)::bool IS NULL OR
+    (sqlc.narg(deleted)::bool = TRUE AND deleted_at IS NOT NULL) OR
+    (sqlc.narg(deleted)::bool = FALSE AND deleted_at IS NULL)
+  ) AND
   (
     sqlc.narg(search)::text IS NULL OR
     sqlc.narg(search)::text = '' OR
