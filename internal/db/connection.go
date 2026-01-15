@@ -54,7 +54,7 @@ func InitDB() error {
 		return fmt.Errorf("DB ping error: %v", err)
 	}
 
-	log.Println("Database connected.")
+	log.Println("🐘 Database connected.")
 
 	return nil
 }

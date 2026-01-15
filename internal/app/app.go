@@ -9,6 +9,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type Module interface {
@@ -22,7 +23,8 @@ type Application struct {
 }
 
 type ModuleContext struct {
-	DB sqlc.Querier
+	DB    sqlc.Querier
+	Redis *redis.Client
 }
 
 func NewApplication(cfg *config.Config) *Application {
@@ -37,7 +39,8 @@ func NewApplication(cfg *config.Config) *Application {
 	r := gin.Default()
 
 	ctx := &ModuleContext{
-		DB: db.DB,
+		DB:    db.DB,
+		Redis: config.NewRedisClient(),
 	}
 
 	modules := []Module{
