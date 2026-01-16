@@ -14,7 +14,7 @@ type UserModule struct {
 
 func NewUserModule(ctx *ModuleContext) *UserModule {
 	userRepo := repository.NewSqlUserRepository(ctx.DB)
-	userService := serviceV1.NewUserService(userRepo)
+	userService := serviceV1.NewUserService(userRepo, ctx.Redis)
 	userHandler := handlerV1.NewUserHandler(userService)
 	userRoute := routeV1.NewUserRoute(userHandler)
 

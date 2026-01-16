@@ -9,7 +9,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-      - pg-local-data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
 
   redis:
     image: redis:8.4.0-alpine
@@ -18,7 +18,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - redis-local-data:/data
+      - redis_data:/data
       - ./deploy/redis/redis.conf:/usr/local/etc/redis/redis.conf
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -26,6 +26,18 @@ services:
       timeout: 10s
       retries: 3
 
+  redisinsight:
+    image: redis/redisinsight:3.0.2
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
-  pg-local-data:
-  redis-local-data:
+  pg_data:
+  redis_data:
+  redisinsight_data:

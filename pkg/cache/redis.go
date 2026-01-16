@@ -10,11 +10,16 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var ErrKeyNotFound = errors.New("redis: key not found")
+type PagedResult[T any] struct {
+	Items []T   `json:"items"`
+	Total int32 `json:"total"`
+}
 
 type redisCacheService struct {
 	rdb *redis.Client
 }
+
+var ErrKeyNotFound = errors.New("redis: key not found")
 
 func NewRedisCacheService(rdb *redis.Client) RedisCacheService {
 	return &redisCacheService{
