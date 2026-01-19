@@ -17,6 +17,9 @@ RETURNING *;
 -- name: GetUser :one
 SELECT * FROM users WHERE uuid = $1 AND deleted_at IS NULL LIMIT 1;
 
+-- name: GetUserByEmail :one
+SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL LIMIT 1;
+
 -- name: SoftDeleteUser :one
 UPDATE users
 SET

@@ -139,6 +139,15 @@ func (sur *SqlUserRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (sq
 	return user, nil
 }
 
+func (sur *SqlUserRepository) GetByEmail(ctx context.Context, email string) (sqlc.User, error) {
+	user, err := sur.db.GetUserByEmail(ctx, email)
+	if err != nil {
+		return sqlc.User{}, err
+	}
+
+	return user, nil
+}
+
 func (sur *SqlUserRepository) Update(ctx context.Context, input sqlc.UpdateUserParams) (sqlc.User, error) {
 	user, err := sur.db.UpdateUser(ctx, input)
 	if err != nil {

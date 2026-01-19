@@ -14,6 +14,7 @@ type Querier interface {
 	CountUsers(ctx context.Context, arg CountUsersParams) (int64, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	GetUser(ctx context.Context, argUuid uuid.UUID) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	HardDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, error)
 	ListUsersOrderByIdASC(ctx context.Context, arg ListUsersOrderByIdASCParams) ([]User, error)
 	ListUsersOrderByIdDESC(ctx context.Context, arg ListUsersOrderByIdDESCParams) ([]User, error)
