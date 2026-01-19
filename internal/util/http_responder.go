@@ -33,6 +33,13 @@ func ResponseSuccess[T any](ctx *gin.Context, status int, message string, data T
 	})
 }
 
+func ResponseMessage(ctx *gin.Context, status int, message string) {
+	ctx.JSON(status, APIResponse[any]{
+		Status:  "success",
+		Message: message,
+	})
+}
+
 func ResponseError(ctx *gin.Context, err error) {
 	if appErr, ok := err.(*AppError); ok {
 		status := httpStatusFromCode(appErr.Code)

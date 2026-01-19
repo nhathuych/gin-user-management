@@ -45,6 +45,7 @@ func NewApplication(cfg *config.Config) *Application {
 
 	modules := []Module{
 		NewUserModule(ctx),
+		NewAuthModule(ctx),
 		// Add new module here
 	}
 
