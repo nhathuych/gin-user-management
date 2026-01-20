@@ -6,17 +6,18 @@ import (
 	"gin-user-management/internal/route"
 	routeV1 "gin-user-management/internal/route/v1"
 	serviceV1 "gin-user-management/internal/service/v1"
+	"gin-user-management/pkg/auth"
 )
 
 type UserModule struct {
 	routes route.Route
 }
 
-func NewUserModule(ctx *ModuleContext) *UserModule {
+func NewUserModule(ctx *ModuleContext, jwtGenerator auth.TokenGenerator) *UserModule {
 	userRepo := repository.NewSqlUserRepository(ctx.DB)
 	userService := serviceV1.NewUserService(userRepo, ctx.Redis)
 	userHandler := handlerV1.NewUserHandler(userService)
-	userRoute := routeV1.NewUserRoute(userHandler)
+	userRoute := routeV1.NewUserRoute(userHandler, jwtGenerator)
 
 	return &UserModule{
 		routes: userRoute,

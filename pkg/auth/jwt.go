@@ -11,10 +11,9 @@ import (
 
 type JWTGenerator struct{}
 
-type Claims struct {
-	UUID  string `json:"uuid"`
-	Email string `json:"email"`
-	Role  int32  `json:"role"`
+type CustomClaims struct {
+	UUID string `json:"sub"`
+	Role int32  `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -26,17 +25,16 @@ var (
 	jwtSecret = []byte(util.GetEnv("JWT_SECRET", "gin-user-management-default-secret"))
 )
 
-func NewJWTGenerator() *JWTGenerator {
+func NewJWTGenerator() TokenGenerator {
 	return &JWTGenerator{}
 }
 
-func (js *JWTGenerator) GenerateAccessToken(user sqlc.User) (string, error) {
-	claims := &Claims{
-		UUID:  user.Uuid.String(),
-		Email: user.Email,
-		Role:  user.Role,
+func (jg *JWTGenerator) GenerateAccessToken(user sqlc.User) (string, error) {
+	claims := CustomClaims{
+		UUID: user.Uuid.String(),
+		Role: user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.NewString(),
+			ID:        uuid.NewString(), // jti
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessTokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
@@ -46,5 +44,22 @@ func (js *JWTGenerator) GenerateAccessToken(user sqlc.User) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func (js *JWTGenerator) GenerateRefreshToken() {
+func (jg *JWTGenerator) GenerateRefreshToken() {
+}
+
+func (jg *JWTGenerator) ParseWithClaims(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(t *jwt.Token) (any, error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, util.NewError("Invalid or expired token", util.ErrCodeUnauthorized)
+	}
+
+	claims, ok := token.Claims.(*CustomClaims)
+	if !ok {
+		return nil, util.NewError("Invalid claims type", util.ErrCodeUnauthorized)
+	}
+
+	return claims, nil
 }

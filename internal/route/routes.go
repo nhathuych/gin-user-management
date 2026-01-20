@@ -16,16 +16,14 @@ func RegisterRoutes(r *gin.Engine, routes ...Route) {
 	httpLogger := util.NewLogger("logs/http.log", "info")
 	recoveryLogger := util.NewLogger("logs/recovery.log", "info")
 
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(
 		middleware.RateLimiterMiddleware(),
 		middleware.TraceMiddleware(),
 		middleware.LoggerMiddleware(httpLogger),
 		middleware.RecoveryMiddleware(recoveryLogger),
 		middleware.ApiKeyMiddleware(),
-		middleware.AuthMiddleware(),
 	)
-
-	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	apiV1 := r.Group("/api/v1")
 	for _, route := range routes {

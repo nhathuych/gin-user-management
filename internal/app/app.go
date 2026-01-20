@@ -20,7 +20,7 @@ type Module interface {
 type Application struct {
 	config  *config.Config
 	router  *gin.Engine
-	modules []Module // no need yet
+	modules []Module
 }
 
 type ModuleContext struct {
@@ -46,7 +46,7 @@ func NewApplication(cfg *config.Config) *Application {
 	}
 
 	modules := []Module{
-		NewUserModule(ctx),
+		NewUserModule(ctx, tokenGenerator),
 		NewAuthModule(ctx, tokenGenerator),
 		// Add new module here
 	}
@@ -56,7 +56,7 @@ func NewApplication(cfg *config.Config) *Application {
 	return &Application{
 		config:  cfg,
 		router:  r,
-		modules: modules, // no need yet
+		modules: modules,
 	}
 }
 
