@@ -6,6 +6,7 @@ import (
 	"gin-user-management/internal/db/sqlc"
 	"gin-user-management/internal/route"
 	"gin-user-management/internal/validation"
+	"gin-user-management/pkg/auth"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,7 @@ func NewApplication(cfg *config.Config) *Application {
 	}
 
 	r := gin.Default()
+	tokenGenerator := auth.NewJWTGenerator()
 
 	ctx := &ModuleContext{
 		DB:    db.DB,
@@ -45,7 +47,7 @@ func NewApplication(cfg *config.Config) *Application {
 
 	modules := []Module{
 		NewUserModule(ctx),
-		NewAuthModule(ctx),
+		NewAuthModule(ctx, tokenGenerator),
 		// Add new module here
 	}
 

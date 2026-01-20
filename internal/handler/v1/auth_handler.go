@@ -27,12 +27,17 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	if err := ah.service.Login(ctx, input.Email, input.Password); err != nil {
+	accessToken, expiresIn, err := ah.service.Login(ctx, input.Email, input.Password)
+	if err != nil {
 		util.ResponseError(ctx, err)
 		return
 	}
 
-	util.ResponseMessage(ctx, http.StatusOK, "Logged in successfully.")
+	response := dtoV1.LoginResponse{
+		AccessToken: accessToken,
+		ExpiresIn:   expiresIn,
+	}
+	util.ResponseSuccess(ctx, http.StatusOK, "Logged in successfully.", response, nil)
 }
 
 func (ah *AuthHandler) Logout(ctx *gin.Context) {

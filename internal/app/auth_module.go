@@ -6,15 +6,16 @@ import (
 	"gin-user-management/internal/route"
 	routeV1 "gin-user-management/internal/route/v1"
 	serviceV1 "gin-user-management/internal/service/v1"
+	"gin-user-management/pkg/auth"
 )
 
 type AuthModule struct {
 	routes route.Route
 }
 
-func NewAuthModule(ctx *ModuleContext) *AuthModule {
+func NewAuthModule(ctx *ModuleContext, tokenGenerator auth.TokenGenerator) *AuthModule {
 	userRepo := repository.NewSqlUserRepository(ctx.DB)
-	authService := serviceV1.NewAuthService(userRepo)
+	authService := serviceV1.NewAuthService(userRepo, tokenGenerator)
 	authHandler := handlerV1.NewAuthHandler(authService)
 	authRoute := routeV1.NewAuthRoute(authHandler)
 
