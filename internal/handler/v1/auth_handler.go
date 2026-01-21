@@ -27,15 +27,16 @@ func (ah *AuthHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, expiresIn, err := ah.service.Login(ctx, input.Email, input.Password)
+	accessToken, refreshToken, expiresIn, err := ah.service.Login(ctx, input.Email, input.Password)
 	if err != nil {
 		util.ResponseError(ctx, err)
 		return
 	}
 
 	response := dtoV1.LoginResponse{
-		AccessToken: accessToken,
-		ExpiresIn:   expiresIn,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    expiresIn,
 	}
 	util.ResponseSuccess(ctx, http.StatusOK, "Logged in successfully.", response, nil)
 }

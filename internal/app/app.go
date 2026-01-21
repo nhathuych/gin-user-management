@@ -7,6 +7,7 @@ import (
 	"gin-user-management/internal/route"
 	"gin-user-management/internal/validation"
 	"gin-user-management/pkg/auth"
+	"gin-user-management/pkg/cache"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -38,11 +39,15 @@ func NewApplication(cfg *config.Config) *Application {
 	}
 
 	r := gin.Default()
-	tokenGenerator := auth.NewJWTGenerator()
+
+	redisClient := config.NewRedisClient()
+	redisCacheService := cache.NewRedisCacheService(redisClient)
+
+	tokenGenerator := auth.NewJWTGenerator(redisCacheService)
 
 	ctx := &ModuleContext{
 		DB:    db.DB,
-		Redis: config.NewRedisClient(),
+		Redis: redisClient,
 	}
 
 	modules := []Module{
