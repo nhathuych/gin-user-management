@@ -10,4 +10,6 @@ type TokenGenerator interface {
 	ParseWithClaims(tokenString string) (*CustomClaims, error)
 	GenerateRefreshToken(user sqlc.User) (RefreshToken, error)
 	StoreRefreshToken(ctx context.Context, token RefreshToken) error
+	ValidateRefreshToken(ctx context.Context, token string) (RefreshToken, error)
+	RevokeRefreshToken(ctx context.Context, oldToken string) error
 }

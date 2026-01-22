@@ -21,5 +21,6 @@ func (ar *AuthRoute) Register(r *gin.RouterGroup) {
 	{
 		auth.POST("/login", ar.handler.Login)
 		auth.POST("/logout", ar.handler.Logout)
+		auth.POST("/refresh-token", ar.handler.RefreshToken)
 	}
 }

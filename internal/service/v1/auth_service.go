@@ -6,6 +6,7 @@ import (
 	"gin-user-management/pkg/auth"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -53,4 +54,42 @@ func (as *authService) Login(ctx *gin.Context, email, password string) (string, 
 
 func (as *authService) Logout(ctx *gin.Context) error {
 	return nil
+}
+
+func (as *authService) RefreshToken(ctx *gin.Context, oldRefreshToken string) (string, string, int, error) {
+	context := ctx.Request.Context()
+
+	refreshTokenInfo, err := as.tokenGenerator.ValidateRefreshToken(context, oldRefreshToken)
+	if err != nil {
+		return "", "", 0, util.WrapError(err, "failed to validate refresh token.", util.ErrCodeUnauthorized)
+	}
+
+	userUUID, err := uuid.Parse(refreshTokenInfo.UUID)
+	if err != nil {
+		return "", "", 0, util.WrapError(err, "failed to parse user UUID from refresh token.", util.ErrCodeInternal)
+	}
+	user, err := as.repo.GetByUUID(context, userUUID)
+	if err != nil {
+		return "", "", 0, util.NewError("User not found.", util.ErrCodeUnauthorized)
+	}
+
+	newAccessToken, err := as.tokenGenerator.GenerateAccessToken(user)
+	if err != nil {
+		return "", "", 0, util.WrapError(err, "Failed to generate access token.", util.ErrCodeInternal)
+	}
+
+	newRefreshToken, err := as.tokenGenerator.GenerateRefreshToken(user)
+	if err != nil {
+		return "", "", 0, util.WrapError(err, "Failed to generate refresh token.", util.ErrCodeInternal)
+	}
+
+	if err := as.tokenGenerator.RevokeRefreshToken(context, oldRefreshToken); err != nil {
+		return "", "", 0, util.WrapError(err, "Failed to revoke refresh token.", util.ErrCodeInternal)
+	}
+
+	if err := as.tokenGenerator.StoreRefreshToken(context, newRefreshToken); err != nil {
+		return "", "", 0, util.WrapError(err, "Failed to store refresh token.", util.ErrCodeInternal)
+	}
+
+	return newAccessToken, newRefreshToken.Token, int(auth.AccessTokenTTL.Seconds()), nil
 }

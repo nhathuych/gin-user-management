@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"gin-user-management/internal/db/sqlc"
 	"gin-user-management/internal/util"
 	"gin-user-management/pkg/cache"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type JWTGenerator struct {
@@ -99,5 +101,48 @@ func (jg *JWTGenerator) GenerateRefreshToken(user sqlc.User) (RefreshToken, erro
 
 func (jg *JWTGenerator) StoreRefreshToken(ctx context.Context, token RefreshToken) error {
 	cacheKey := "refresh_token:" + token.Token
-	return jg.redis.Set(ctx, cacheKey, token, RefreshTokenTTL)
+	ttl := time.Until(token.ExpiresAt)
+	if ttl <= 0 {
+		return util.NewError("Refresh token already expired.", util.ErrCodeBadRequest)
+	}
+
+	return jg.redis.Set(ctx, cacheKey, token, ttl)
+}
+
+func (jg *JWTGenerator) ValidateRefreshToken(ctx context.Context, token string) (RefreshToken, error) {
+	cacheKey := "refresh_token:" + token
+
+	var refreshToken RefreshToken
+	err := jg.redis.Get(ctx, cacheKey, &refreshToken)
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return RefreshToken{}, util.WrapError(err, "Refresh token not found.", util.ErrCodeUnauthorized)
+		}
+		return RefreshToken{}, util.WrapError(err, "Cannot retrieve refresh token.", util.ErrCodeInternal)
+	}
+	if refreshToken.Revoked {
+		return RefreshToken{}, util.NewError("Refresh token is revoked.", util.ErrCodeBadRequest)
+	}
+	if refreshToken.ExpiresAt.Before(time.Now().UTC()) {
+		return RefreshToken{}, util.NewError("Refresh token is expired.", util.ErrCodeBadRequest)
+	}
+
+	return refreshToken, nil
+}
+
+// RevokeRefreshToken marks a refresh token as revoked.
+// The token is not deleted from Redis to prevent replay attacks and to safely handle concurrent refresh requests.
+// This operation overwrites the existing Redis key with the revoked state.
+func (jg *JWTGenerator) RevokeRefreshToken(ctx context.Context, oldToken string) error {
+	cacheKey := "refresh_token:" + oldToken
+
+	var refreshToken RefreshToken
+	err := jg.redis.Get(ctx, cacheKey, &refreshToken)
+	if err != nil {
+		return util.WrapError(err, "Cannot retrieve refresh token.", util.ErrCodeInternal)
+	}
+
+	refreshToken.Revoked = true
+	// Overwrite the existing Redis key to persist the revoked state until expiration
+	return jg.redis.Set(ctx, cacheKey, refreshToken, time.Until(refreshToken.ExpiresAt))
 }
