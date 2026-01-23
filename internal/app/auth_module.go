@@ -15,7 +15,7 @@ type AuthModule struct {
 
 func NewAuthModule(ctx *ModuleContext, tokenGenerator auth.TokenGenerator) *AuthModule {
 	userRepo := repository.NewSqlUserRepository(ctx.DB)
-	authService := serviceV1.NewAuthService(userRepo, tokenGenerator)
+	authService := serviceV1.NewAuthService(userRepo, ctx.RedisCache, tokenGenerator)
 	authHandler := handlerV1.NewAuthHandler(authService)
 	authRoute := routeV1.NewAuthRoute(authHandler)
 

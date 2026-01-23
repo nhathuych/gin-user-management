@@ -4,18 +4,21 @@ import (
 	handlerV1 "gin-user-management/internal/handler/v1"
 	"gin-user-management/internal/middleware"
 	"gin-user-management/pkg/auth"
+	"gin-user-management/pkg/cache"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserRoute struct {
 	handler      *handlerV1.UserHandler
+	redisCache   cache.RedisCacheService
 	jwtGenerator auth.TokenGenerator
 }
 
-func NewUserRoute(handler *handlerV1.UserHandler, jwtGenerator auth.TokenGenerator) *UserRoute {
+func NewUserRoute(handler *handlerV1.UserHandler, redisCache cache.RedisCacheService, jwtGenerator auth.TokenGenerator) *UserRoute {
 	return &UserRoute{
 		handler:      handler,
+		redisCache:   redisCache,
 		jwtGenerator: jwtGenerator,
 	}
 }
@@ -29,7 +32,7 @@ func (ur *UserRoute) Register(r *gin.RouterGroup) {
 
 	// 🔒 PROTECTED
 	protected := users.Group("")
-	protected.Use(middleware.AuthMiddleware(ur.jwtGenerator))
+	protected.Use(middleware.AuthMiddleware(ur.jwtGenerator, ur.redisCache))
 	{
 		protected.GET("/deleted", ur.handler.GetDeletedUsers)
 		protected.POST("", ur.handler.Create)

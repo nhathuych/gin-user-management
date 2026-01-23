@@ -137,9 +137,14 @@ func (jg *JWTGenerator) RevokeRefreshToken(ctx context.Context, oldToken string)
 	cacheKey := "refresh_token:" + oldToken
 
 	var refreshToken RefreshToken
-	err := jg.redis.Get(ctx, cacheKey, &refreshToken)
-	if err != nil {
-		return util.WrapError(err, "Cannot retrieve refresh token.", util.ErrCodeInternal)
+	if err := jg.redis.Get(ctx, cacheKey, &refreshToken); err != nil {
+		return util.WrapError(err, "Refresh token not found.", util.ErrCodeInternal)
+	}
+	if refreshToken.Revoked {
+		return util.NewError("Refresh token already revoked.", util.ErrCodeBadRequest)
+	}
+	if refreshToken.ExpiresAt.Before(time.Now()) {
+		return util.NewError("Refresh token expired.", util.ErrCodeUnauthorized)
 	}
 
 	refreshToken.Revoked = true
