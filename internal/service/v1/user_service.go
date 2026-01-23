@@ -15,19 +15,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type userService struct {
-	repo  repository.UserRepository
-	redis cache.RedisCacheService
+	repo       repository.UserRepository
+	redisCache cache.RedisCacheService
 }
 
-func NewUserService(repo repository.UserRepository, redisClient *redis.Client) UserService {
+func NewUserService(repo repository.UserRepository, redisCache cache.RedisCacheService) UserService {
 	return &userService{
-		repo:  repo,
-		redis: cache.NewRedisCacheService(redisClient),
+		repo:       repo,
+		redisCache: redisCache,
 	}
 }
 
@@ -50,7 +49,7 @@ func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, pa
 
 	var cacheData cache.PagedResult[sqlc.User]
 	cacheKey := us.userListCacheKey(search, orderBy, sort, page, limit, deleted)
-	if err := us.redis.Get(context, cacheKey, &cacheData); err == nil {
+	if err := us.redisCache.Get(context, cacheKey, &cacheData); err == nil {
 		return cacheData.Items, cacheData.Total, nil
 	}
 
@@ -70,7 +69,7 @@ func (us *userService) GetAll(ctx *gin.Context, search, orderBy, sort string, pa
 		Items: users,
 		Total: int32(total),
 	}
-	us.redis.Set(context, cacheKey, cacheData, 5*time.Minute)
+	us.redisCache.Set(context, cacheKey, cacheData, 5*time.Minute)
 
 	return users, int32(total), nil
 }
@@ -189,7 +188,7 @@ func (us *userService) userListCacheKey(search, orderBy, sort string, page, limi
 }
 
 func (us *userService) clearUserListCache(ctx context.Context) {
-	if err := us.redis.Clear(ctx, "users:list:v1:*"); err != nil {
+	if err := us.redisCache.Clear(ctx, "users:list:v1:*"); err != nil {
 		log.Printf("Failed to clear users list cache: %v", err)
 	}
 }

@@ -11,7 +11,6 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 type Module interface {
@@ -25,8 +24,8 @@ type Application struct {
 }
 
 type ModuleContext struct {
-	DB    sqlc.Querier
-	Redis *redis.Client
+	DB         sqlc.Querier
+	RedisCache cache.RedisCacheService
 }
 
 func NewApplication(cfg *config.Config) *Application {
@@ -46,8 +45,8 @@ func NewApplication(cfg *config.Config) *Application {
 	tokenGenerator := auth.NewJWTGenerator(redisCacheService)
 
 	ctx := &ModuleContext{
-		DB:    db.DB,
-		Redis: redisClient,
+		DB:         db.DB,
+		RedisCache: redisCacheService,
 	}
 
 	modules := []Module{
