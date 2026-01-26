@@ -80,6 +80,8 @@ func httpStatusFromCode(code ErrorCode) int {
 		return http.StatusConflict
 	case ErrCodeUnauthorized:
 		return http.StatusUnauthorized
+	case ErrCodeTooManyRequests:
+		return http.StatusTooManyRequests
 	default:
 		return http.StatusInternalServerError
 	}

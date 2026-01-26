@@ -3,11 +3,12 @@ package util
 type ErrorCode string
 
 const (
-	ErrCodeBadRequest   ErrorCode = "BAD_REQUEST"
-	ErrCodeNotFound     ErrorCode = "NOT_FOUND"
-	ErrCodeConflict     ErrorCode = "CONFLICT"
-	ErrCodeInternal     ErrorCode = "INTERNAL_SERVER_ERROR"
-	ErrCodeUnauthorized ErrorCode = "UNAUTHORIZED"
+	ErrCodeBadRequest      ErrorCode = "BAD_REQUEST"
+	ErrCodeNotFound        ErrorCode = "NOT_FOUND"
+	ErrCodeConflict        ErrorCode = "CONFLICT"
+	ErrCodeInternal        ErrorCode = "INTERNAL_SERVER_ERROR"
+	ErrCodeUnauthorized    ErrorCode = "UNAUTHORIZED"
+	ErrCodeTooManyRequests ErrorCode = "TOO_MANY_REQUESTS"
 )
 
 type AppError struct {
