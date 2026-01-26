@@ -1,4 +1,5 @@
-# Binaries for programs and plugins
+# Binary executables and output files
+bin/
 *.exe
 *.exe~
 *.dll
@@ -14,11 +15,13 @@ coverage.*
 *.coverprofile
 profile.cov
 
-# Dependency directories (remove the comment below if you use Go modules)
+# Dependency directories
 vendor/
+
+# Hot reload temporary files (e.g., for Air or other watchers)
 tmp/
 
-# Go workspace file
+# Go workspace files
 go.work
 go.work.sum
 
@@ -31,5 +34,7 @@ go.work.sum
 # Logs
 *.log
 
-# Environment variables
+# Environment variables and secrets
 .env
+.env.*
+!.env.example

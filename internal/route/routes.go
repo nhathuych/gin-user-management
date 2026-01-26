@@ -13,8 +13,8 @@ type Route interface {
 }
 
 func RegisterRoutes(r *gin.Engine, routes ...Route) {
-	httpLogger := util.NewLogger("logs/http.log", "info")
-	recoveryLogger := util.NewLogger("logs/recovery.log", "info")
+	httpLogger := util.NewLogger("log/http.log", "info")
+	recoveryLogger := util.NewLogger("log/recovery.log", "info")
 
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(

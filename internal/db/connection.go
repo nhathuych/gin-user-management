@@ -26,7 +26,7 @@ func InitDB() error {
 		return fmt.Errorf("Error parsing DB config: %v", err)
 	}
 
-	sqlLogger := util.NewLogger("logs/sql.log", "info")
+	sqlLogger := util.NewLogger("log/sql.log", "info")
 
 	conf.ConnConfig.Tracer = &tracelog.TraceLog{
 		Logger: &pgx.PgxZerologTracer{

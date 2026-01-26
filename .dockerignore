@@ -1,0 +1,38 @@
+# Dependency directories
+vendor/
+
+# Binary & Build outputs
+bin/
+tmp/
+out/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Log files
+*.log
+log/
+
+# Docker configuration files (prevents self-inclusion)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Git and IDE metadata
+.git
+.gitignore
+.vscode/
+.idea/
+*.swp
+
+# Environment secrets (Crucial for security)
+.env
+.env.example
+*.local
+
+# Documentation and Tests
+README.md
+*_test.go

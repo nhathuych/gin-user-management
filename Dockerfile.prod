@@ -1,0 +1,35 @@
+# =========== STAGE 1: BUILD GO BINARY ===========
+# Use Go image with Alpine for building the application
+FROM golang:1.25-alpine AS builder
+
+# Install git for downloading Go modules
+RUN apk update && apk add --no-cache git
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy go module files first to leverage Docker layer caching
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the source code
+COPY . .
+
+# Build the Go binary
+RUN go build -o api ./cmd/api
+
+# =========== STAGE 2: RUNNING ENVIRONMENT ===========
+# Lightweight Alpine Linux image for running the binary
+FROM alpine:3.23
+
+# Set working directory for runtime
+WORKDIR /app
+
+# Copy only the compiled binary from the builder stage
+COPY --from=builder /app/api .
+
+# Documentation only
+EXPOSE 8080
+
+# Run the application
+CMD ["./api"]
