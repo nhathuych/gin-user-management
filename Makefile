@@ -47,8 +47,8 @@ prod_logs:
 	docker compose -f $(COMPOSE_PROD_FILE) logs -f
 
 # Without the API service
-infra_up: infra_down
-	docker compose -f $(COMPOSE_INFRA_FILE) --env-file $(ENV_FILE) up -d --build
+infra_up:
+	docker compose -f $(COMPOSE_INFRA_FILE) --env-file $(ENV_FILE) up -d
 infra_down:
 	docker compose -f $(COMPOSE_INFRA_FILE) down
 infra_logs:

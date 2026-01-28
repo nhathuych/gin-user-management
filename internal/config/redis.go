@@ -3,7 +3,7 @@ package config
 import (
 	"context"
 	"gin-user-management/internal/util"
-	"log"
+	"gin-user-management/pkg/logger"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -41,10 +41,10 @@ func NewRedisClient() *redis.Client {
 	defer cancel()
 
 	if err := client.Ping(ctx).Err(); err != nil {
-		log.Fatalf("Redis connection failed: %v", err)
+		logger.AppLogger.Fatal().Err(err).Msg("🔴 Redis connection failed")
 	}
 
-	log.Println("📦 Redis connected.")
+	logger.AppLogger.Info().Msg("📦 Redis connected.")
 
 	return client
 }

@@ -8,7 +8,7 @@ import (
 	"gin-user-management/internal/validation"
 	"gin-user-management/pkg/auth"
 	"gin-user-management/pkg/cache"
-	"log"
+	"gin-user-management/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,11 +30,11 @@ type ModuleContext struct {
 
 func NewApplication(cfg *config.Config) *Application {
 	if err := db.InitDB(); err != nil {
-		log.Fatalf("Failed to connect to db: %v", err)
+		logger.AppLogger.Fatal().Err(err).Msg("🔴 Failed to connect to database")
 	}
 
 	if err := validation.InitValidator(); err != nil {
-		log.Fatalf("Init validator failed: %v", err)
+		logger.AppLogger.Fatal().Err(err).Msg("🔴 Init validator failed")
 	}
 
 	r := gin.Default()

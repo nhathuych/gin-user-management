@@ -6,8 +6,8 @@ import (
 	"gin-user-management/internal/config"
 	"gin-user-management/internal/db/sqlc"
 	"gin-user-management/internal/util"
+	"gin-user-management/pkg/logger"
 	"gin-user-management/pkg/pgx"
-	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -54,7 +54,7 @@ func InitDB() error {
 		return fmt.Errorf("DB ping error: %v", err)
 	}
 
-	log.Println("🐘 Database connected.")
+	logger.AppLogger.Info().Msg("🐘 Database connected.")
 
 	return nil
 }

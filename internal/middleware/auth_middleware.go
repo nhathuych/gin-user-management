@@ -41,7 +41,7 @@ func AuthMiddleware(jwtGenerator auth.TokenGenerator, redisCache cache.RedisCach
 
 		// uuid, _ := ctx.Get("user_uuid")
 		// role, _ := ctx.Get("user_role")
-		// log.Printf(`authenticated user: {uuid: %s, role: %d}`, uuid, role)
+		// logger.AppLogger.Info().Msgf(`authenticated user: {uuid: %s, role: %d}`, uuid, role)
 
 		ctx.Next()
 	}

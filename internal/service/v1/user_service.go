@@ -9,7 +9,7 @@ import (
 	"gin-user-management/internal/repository"
 	"gin-user-management/internal/util"
 	"gin-user-management/pkg/cache"
-	"log"
+	"gin-user-management/pkg/logger"
 	"strings"
 	"time"
 
@@ -189,6 +189,6 @@ func (us *userService) userListCacheKey(search, orderBy, sort string, page, limi
 
 func (us *userService) clearUserListCache(ctx context.Context) {
 	if err := us.redisCache.Clear(ctx, "users:list:v1:*"); err != nil {
-		log.Printf("Failed to clear users list cache: %v", err)
+		logger.AppLogger.Warn().Err(err).Msg("Failed to clear users list cache")
 	}
 }
