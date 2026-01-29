@@ -1,10 +1,12 @@
 package v1
 
 import (
+	"fmt"
 	"gin-user-management/internal/repository"
 	"gin-user-management/internal/util"
 	"gin-user-management/pkg/auth"
 	"gin-user-management/pkg/cache"
+	"gin-user-management/pkg/logger"
 	"strings"
 	"sync"
 	"time"
@@ -185,4 +187,36 @@ func (as *authService) RefreshToken(ctx *gin.Context, oldRefreshToken string) (s
 	}
 
 	return newAccessToken, newRefreshToken.Token, int(auth.AccessTokenTTL.Seconds()), nil
+}
+
+func (as *authService) RequestPasswordReset(ctx *gin.Context, email string) error {
+	context := ctx.Request.Context()
+
+	cacheKey := cache.PasswordResetEmailRateLimitKey(email)
+	if exists, err := as.redisCache.Exists(context, cacheKey); err == nil && exists {
+		return util.NewError("Too many password reset requests. Please try again later.", util.ErrCodeTooManyRequests)
+	}
+
+	email = util.NormalizeString(email)
+	user, err := as.repo.GetByEmail(context, email)
+	if err != nil {
+		return util.NewError("Email address not found.", util.ErrCodeNotFound)
+	}
+
+	token, err := util.GenerateSecureToken(16)
+	if err != nil {
+		return util.NewError("Failed to generate reset token.", util.ErrCodeInternal)
+	}
+
+	if err := as.redisCache.Set(context, cache.PasswordResetTokenKey(token), user.Uuid, 30*time.Minute); err != nil {
+		return util.NewError("Failed to process password reset request. Please try again later.", util.ErrCodeInternal)
+	}
+	if err := as.redisCache.Set(context, cacheKey, 1, 5*time.Minute); err != nil {
+		return util.NewError("Failed to process password reset request. Please try again later.", util.ErrCodeInternal)
+	}
+
+	resetLink := fmt.Sprintf("Front end url: https://test.com/reset-password?token=%s", token)
+	logger.AppLogger.Info().Msg(resetLink)
+
+	return nil
 }

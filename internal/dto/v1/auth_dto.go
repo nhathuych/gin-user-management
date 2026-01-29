@@ -9,6 +9,10 @@ type RefreshTokenInput struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
+type RequestPasswordResetInput struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
 type LoginResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
