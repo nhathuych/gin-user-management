@@ -18,4 +18,5 @@ type UserRepository interface {
 	SoftDeleteUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
 	RestoreUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
 	HardDeleteUser(ctx context.Context, uuid uuid.UUID) (sqlc.User, error)
+	UpdatePassword(ctx context.Context, input sqlc.UpdatePasswordParams) error
 }

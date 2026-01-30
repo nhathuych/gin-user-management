@@ -88,3 +88,11 @@ WHERE
   )
 ORDER BY id DESC
 LIMIT $1 OFFSET $2;
+
+-- name: UpdatePassword :one
+UPDATE users
+SET password = sqlc.arg(password)
+WHERE
+  uuid = sqlc.arg(uuid)::uuid AND
+  deleted_at IS NULL
+RETURNING *;

@@ -183,3 +183,11 @@ func (sur *SqlUserRepository) HardDeleteUser(ctx context.Context, uuid uuid.UUID
 
 	return user, nil
 }
+
+func (sur *SqlUserRepository) UpdatePassword(ctx context.Context, input sqlc.UpdatePasswordParams) error {
+	if _, err := sur.db.UpdatePassword(ctx, input); err != nil {
+		return err
+	}
+
+	return nil
+}

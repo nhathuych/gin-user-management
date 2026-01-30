@@ -93,4 +93,16 @@ func (ah *AuthHandler) RequestPasswordReset(ctx *gin.Context) {
 }
 
 func (ah *AuthHandler) ResetPassword(ctx *gin.Context) {
+	var input dtoV1.ResetPasswordInput
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		util.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+
+	if err := ah.service.ResetPassword(ctx, input.Token, input.NewPassword); err != nil {
+		util.ResponseError(ctx, err)
+		return
+	}
+
+	util.ResponseMessage(ctx, http.StatusOK, "Your password has been reset successfully.")
 }

@@ -20,6 +20,7 @@ type Querier interface {
 	ListUsersOrderByIdDESC(ctx context.Context, arg ListUsersOrderByIdDESCParams) ([]User, error)
 	RestoreUser(ctx context.Context, argUuid uuid.UUID) (User, error)
 	SoftDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, error)
+	UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

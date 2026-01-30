@@ -316,6 +316,39 @@ func (q *Queries) SoftDeleteUser(ctx context.Context, argUuid uuid.UUID) (User, 
 	return i, err
 }
 
+const updatePassword = `-- name: UpdatePassword :one
+UPDATE users
+SET password = $1
+WHERE
+  uuid = $2::uuid AND
+  deleted_at IS NULL
+RETURNING id, uuid, email, password, fullname, age, status, role, deleted_at, created_at, updated_at
+`
+
+type UpdatePasswordParams struct {
+	Password string    `json:"password"`
+	Uuid     uuid.UUID `json:"uuid"`
+}
+
+func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) (User, error) {
+	row := q.db.QueryRow(ctx, updatePassword, arg.Password, arg.Uuid)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Uuid,
+		&i.Email,
+		&i.Password,
+		&i.Fullname,
+		&i.Age,
+		&i.Status,
+		&i.Role,
+		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET
